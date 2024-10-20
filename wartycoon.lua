@@ -39,8 +39,7 @@ local Options = Fluent.Options
 local Tabs = {
     Credits = Window:AddTab({ Title = "Credits", Icon = "tags" }),
     Visuals = Window:AddTab({ Title = "Visuals", Icon = "eye"}),
-    Others = Window:AddTab({ Title = "Others", Icon = "sword"}),
-    Aimbot = Window:AddTab({ Title = "Aimbot", Icon = "crosshair"}),
+    Aimbot = Window:AddTab({ Title = "Combat", Icon = "sword"}),
     Misc = Window:AddTab({ Title = "Misc", Icon = "layout-list"}),
     Farm = Window:AddTab({ Title = "Farm", Icon = "truck"})
 }
@@ -63,17 +62,19 @@ Tabs.Misc:AddButton({
     Callback = function()
         while wait(1) do
             for Index, Tycoon in ipairs(game.Workspace.Tycoon.Tycoons:GetChildren()) do
-                for Index2, Object in ipairs(Tycoon.PurchasedObjects:GetChildren()) do
-                    if Object:FindFirstChild("Laser") ~= nil and Object:FindFirstChild("Laser"):FindFirstChild("TouchInterest") ~= nil then
-                        Object.Laser.Color = Color3.fromRGB(0, 255, 244)
-                        Object.Laser.TouchInterest:Remove()
-                    end
-                    if Object:FindFirstChild("OwnerOnly") ~= nil and Object:FindFirstChild("OwnerOnly"):FindFirstChild("TouchInterest") ~= nil then
-                        Object.OwnerOnly.Color = Color3.fromRGB(0, 255, 244)
-                        Object.OwnerOnly.TouchInterest:Remove()
-                    end
-                    if Object.Name == "Electric Fence" and Object:FindFirstChild("Collision") then
-                        Object.Collision:Remove()
+                if Tycoon:FindFirstChild("PurchasedObjects") then
+                    for Index2, Object in ipairs(Tycoon.PurchasedObjects:GetChildren()) do
+                        if Object:FindFirstChild("Laser") ~= nil and Object:FindFirstChild("Laser"):FindFirstChild("TouchInterest") ~= nil then
+                            Object.Laser.Color = Color3.fromRGB(0, 255, 244)
+                            Object.Laser.TouchInterest:Remove()
+                        end
+                        if Object:FindFirstChild("OwnerOnly") ~= nil and Object:FindFirstChild("OwnerOnly"):FindFirstChild("TouchInterest") ~= nil then
+                            Object.OwnerOnly.Color = Color3.fromRGB(0, 255, 244)
+                            Object.OwnerOnly.TouchInterest:Remove()
+                        end
+                        if Object.Name == "Electric Fence" and Object:FindFirstChild("Collision") then
+                            Object.Collision:Remove()
+                        end
                     end
                 end
             end
@@ -167,15 +168,13 @@ game:GetService("RunService").RenderStepped:Connect(function()
     _G.nn_FOV.Visible = Options.Aimbot.Value
 
     if Options.Aimbot.Value then
-        if _G.nn_ToolCheck then
-            if isToolEquiped() then
-                for _, player in ipairs(game.Players:GetPlayers()) do
-                    if player ~= game.Players.LocalPlayer and isPlayerInCircle(player) and isRightMouseDown and table.find(FriendList, player.Name:lower()) == nil then
-                        game.Workspace.CurrentCamera.CFrame = CFrame.lookAt(game.Workspace.Camera.CFrame.Position, player.Character[_G.nn_AimPart].Position)
-                    end
+        if isToolEquiped() and not game.Players.LocalPlayer.Character.Humanoid.Sit then
+            for _, player in ipairs(game.Players:GetPlayers()) do
+                if player ~= game.Players.LocalPlayer and isPlayerInCircle(player) and isRightMouseDown and table.find(FriendList, player.Name:lower()) == nil then
+                    game.Workspace.CurrentCamera.CFrame = CFrame.lookAt(game.Workspace.Camera.CFrame.Position, player.Character[_G.nn_AimPart].Position)
                 end
             end
-        else
+        elseif game.Players.LocalPlayer.Character.Humanoid.Sit then
             for _, player in ipairs(game.Players:GetPlayers()) do
                 if player ~= game.Players.LocalPlayer and isPlayerInCircle(player) and isRightMouseDown and table.find(FriendList, player.Name:lower()) == nil then
                     game.Workspace.CurrentCamera.CFrame = CFrame.lookAt(game.Workspace.Camera.CFrame.Position, player.Character[_G.nn_AimPart].Position)
@@ -207,12 +206,6 @@ Tabs.Aimbot:AddSlider("Slider", {
         _G.nn_FOV.Radius = Value
     end
 })
-
-local ToolCheck = Tabs.Aimbot:AddToggle("ToolCheck", {Title = "Tool Check", Default = false})
-
-ToolCheck:OnChanged(function()
-    _G.nn_ToolCheck = Options.ToolCheck.Value
-end)
 
 Tabs.Aimbot:AddInput("Input", {
     Title = "Friend list",
@@ -252,5 +245,57 @@ Tabs.Aimbot:AddInput("Input", {
         end
     end
 })
+
+local HitboxExpander = Tabs.Aimbot:AddToggle("HitboxExpander", {Title = "Hitbox Expander", Default = false})
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    if Options.HitboxExpander.Value then
+        for _,Player in ipairs(game.Players:GetChildren()) do
+            if Player ~= nil then
+                if table.find(FriendList, Player.Name) == nil and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character:FindFirstChild("Humanoid").Health ~= 0 and Player ~= game.Players.LocalPlayer then
+                    if _G.nn_VehicleCheck then
+                        if Player.Character.Humanoid.SeatPart == nil then
+                            Player.Character.HumanoidRootPart.Size = Vector3.new(_G.nn_HitboxSize, _G.nn_HitboxSize, _G.nn_HitboxSize)
+                            Player.Character.HumanoidRootPart.Transparency = 0
+                        else
+                            Player.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+                            Player.Character.HumanoidRootPart.Transparency = 1
+                        end
+                    else
+                        Player.Character.HumanoidRootPart.Size = Vector3.new(_G.nn_HitboxSize, _G.nn_HitboxSize, _G.nn_HitboxSize)
+                        Player.Character.HumanoidRootPart.Transparency = 0
+                    end
+                end
+            end
+        end
+    else
+        for _,Player in ipairs(game.Players:GetChildren()) do
+            if Player ~= nil then
+                if table.find(FriendList, Player.Name) == nil and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character:FindFirstChild("Humanoid").Health ~= 0 and Player ~= game.Players.LocalPlayer then
+                    Player.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+                    Player.Character.HumanoidRootPart.Transparency = 1
+                end
+            end
+        end
+    end
+end)
+
+local HitboxSize = Tabs.Aimbot:AddSlider("HitboxSize", {
+    Title = "Hitbox Size",
+    Description = "",
+    Default = 2,
+    Min = 1,
+    Max = 25,
+    Rounding = 1,
+    Callback = function(Value)
+        _G.nn_HitboxSize = Value
+    end
+})
+
+local VehicleCheck = Tabs.Aimbot:AddToggle("VehicleCheck", {Title = "Vehicle Check", Default = false})
+
+VehicleCheck:OnChanged(function()
+    _G.nn_VehicleCheck = Options.VehicleCheck.Value
+end)
 
 Window:SelectTab(1)
