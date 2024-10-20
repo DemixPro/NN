@@ -26,7 +26,7 @@ local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.
 
 local Window = Fluent:CreateWindow({
     Title = "War Tycoon - 1a",
-    SubTitle = "hell yeah tycoon script - nnhub",
+    SubTitle = "ода шедевротайкон - nnhub",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = false,
