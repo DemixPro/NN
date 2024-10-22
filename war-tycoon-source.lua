@@ -131,7 +131,7 @@ Tabs.Misc:AddButton({
             game:GetService("ReplicatedStorage").ACS_Engine.Events:FindFirstChild("FDMG"):Remove()
 
             Event = Instance.new("RemoteEvent")
-            Event.name = "FDMG"
+            Event.Name = "FDMG"
             Event.Parent = game:GetService("ReplicatedStorage").ACS_Engine.Events
         end
     end
