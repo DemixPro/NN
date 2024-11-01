@@ -1,4 +1,4 @@
-local MinimizeMenuBind = Enum.KeyCode.LeftControl
+local MinimizeMenuBind = Enum.KeyCode.RightShift
 
 nn_FOV = Drawing.new("Circle")
 nn_FOV.Visible = false
@@ -158,5 +158,3 @@ Tabs.Aimbot:AddInput("Input", {
 })
 
 Window:SelectTab(1)
-
-queue_on_teleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/DemixPro/NN/refs/heads/main/RivalsAimbot_bad.lua"))()')
