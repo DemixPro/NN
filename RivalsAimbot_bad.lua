@@ -159,4 +159,4 @@ Tabs.Aimbot:AddInput("Input", {
 
 Window:SelectTab(1)
 
-queue_on_teleport("")
+queue_on_teleport("https://raw.githubusercontent.com/DemixPro/NN/refs/heads/main/RivalsAimbot_bad.lua")
