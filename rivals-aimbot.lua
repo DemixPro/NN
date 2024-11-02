@@ -1,5 +1,4 @@
 -- Made by DemixLuaher
-
 local MinimizeMenuBind = Enum.KeyCode.RightShift
 
 nn_FOV = Drawing.new("Circle")
@@ -32,7 +31,7 @@ local Options = Fluent.Options
 
 local Window = Fluent:CreateWindow({
     Title = "Rivals Aimbot",
-    SubTitle = "ну бля тяжело было уже - nnhub",
+    SubTitle = "DemixLuaher - nnhub",
     TabWidth = 160,
     Size = UDim2.fromOffset(580, 460),
     Acrylic = false,
@@ -46,8 +45,8 @@ local Aim = Tabs.Aimbot:AddToggle("Aimbot", {Title = "Aimbot (RMB)", Default = f
 
 local function isPlayerInCircle(player)
     local character = player.Character
-    if character and character:FindFirstChild("HumanoidRootPart") then
-        local position = character.HumanoidRootPart.Position
+    if character and character:FindFirstChild(_G.AimPart) then
+        local position = character[_G.AimPart].Position
         local screenPosition, onScreen = game.Workspace.CurrentCamera:WorldToScreenPoint(position)
         
         if onScreen then
@@ -71,41 +70,42 @@ local function isToolEquiped()
     return true
 end
 
-local function hasForceField(player)
-    if Options.ForceFieldCheck.Value then
-        for k,v in ipairs(player.Character:GetChildren()) do
-            if v:IsA("ForceField") then
-                return true
-            end
+local function spectateCheck()
+    if Options.SpectateDisable.Value then
+        if game:GetService("Players").LocalPlayer.PlayerGui.MainGui.MainFrame.FighterInterfaces[game:GetService("Players").LocalPlayer.Name].Health.Spectators.Value.Text ~= "0" then
+            return false
         end
-
-        return false
+        return true
     end
-
-    return false
+    
+    return true
 end
 
-game:GetService("RunService").RenderStepped:Connect(function()
-    nn_FOV.Position = Vector2.new(game:GetService("UserInputService"):GetMouseLocation().X, game:GetService("UserInputService"):GetMouseLocation().Y)
-    nn_FOV.Visible = Options.Aimbot.Value
+task.spawn(function()
+    while task.wait() do
+        nn_FOV.Position = Vector2.new(game:GetService("UserInputService"):GetMouseLocation().X, game:GetService("UserInputService"):GetMouseLocation().Y)
+        nn_FOV.Visible = Options.Aimbot.Value
 
-    if Options.Aimbot.Value then
-        for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
-            if player ~= game:GetService("Players").LocalPlayer and isPlayerInCircle(player) and isRightMouseDown and table.find(FriendList, player.Name:lower()) == nil and not hasForceField(player) and isToolEquiped() then
-                local Position = game.Workspace.CurrentCamera:WorldToScreenPoint(player.Character[_G.AimPart].Position)
-                
-                local mouseX = mouse.X
-                local mouseY = mouse.Y
-                
-                local centerX = Position.X
-                local centerY = Position.Y
-                
-                local smoothingFactor = 0.2
-    
-                local deltaX = (centerX - mouseX) * smoothingFactor
-                local deltaY = (centerY - mouseY) * smoothingFactor
+        if Options.Aimbot.Value then
+            nn_FOV.Position = Vector2.new(game:GetService("UserInputService"):GetMouseLocation().X, game:GetService("UserInputService"):GetMouseLocation().Y)
 
-                mousemoverel(deltaX, deltaY)
+            for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+                if player ~= game:GetService("Players").LocalPlayer and isPlayerInCircle(player) and isRightMouseDown and table.find(FriendList, player.Name:lower()) == nil and spectateCheck() then
+                    local Position = game.Workspace.CurrentCamera:WorldToScreenPoint(player.Character[_G.AimPart].Position)
+                    
+                    local mouseX = mouse.X
+                    local mouseY = mouse.Y
+                    
+                    local centerX = Position.X
+                    local centerY = Position.Y
+                    
+                    local smoothingFactor = 0.2
+        
+                    local deltaX = (centerX - mouseX) * smoothingFactor
+                    local deltaY = (centerY - mouseY) * smoothingFactor
+
+                    mousemoverel(deltaX, deltaY)
+                end
             end
         end
     end
@@ -125,15 +125,16 @@ end)
 local RandomAim = Tabs.Aimbot:AddToggle("RandomAim", {Title = "Random Aim Part", Default = false })
 
 task.spawn(function()
-while task.wait() do
-    if Options.RandomAim.Value then
-        if math.random(1,2) == 1 then
-            _G.AimPart = "HitboxHead"
-        else
-            _G.AimPart = "HitboxBody"
-        end
+    while task.wait() do
+        if Options.RandomAim.Value then
+            if math.random(1,2) == 1 then
+                _G.AimPart = "HitboxHead"
+            else
+                _G.AimPart = "HitboxBody"
+            end
 
-        wait(_G.aimSwapDelay)
+            wait(_G.aimSwapDelay)
+        end
     end
 end)
 
@@ -161,7 +162,7 @@ Tabs.Aimbot:AddSlider("Slider", {
     end
 })
 
-local ForceFieldCheck = Tabs.Aimbot:AddToggle("ForceFieldCheck", {Title = "Force Field Check", Default = false })
+local SpectateDisable = Tabs.Aimbot:AddToggle("SpectateDisable", {Title = "Spectate Disable", Default = false })
 
 Tabs.Aimbot:AddInput("Input", {
     Title = "Friend list",
@@ -203,3 +204,5 @@ Tabs.Aimbot:AddInput("Input", {
 })
 
 Window:SelectTab(1)
+
+queue_on_teleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/DemixPro/NN/refs/heads/main/rivals-aimbot.lua"))())
