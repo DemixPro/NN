@@ -204,5 +204,3 @@ Tabs.Aimbot:AddInput("Input", {
 })
 
 Window:SelectTab(1)
-
-queue_on_teleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/DemixPro/NN/refs/heads/main/rivals-aimbot.lua"))()')
